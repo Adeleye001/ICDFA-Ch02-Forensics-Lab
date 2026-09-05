@@ -1,54 +1,80 @@
-# Digital Forensics Lab – Data Carving & File Recovery
+# ICDFA Ch02 Forensics Lab - Data Carving and Raw File Recovery
 
-Module 7 lab from my Digital Forensics track (ICDFA Fellowship). Focus is on recovering
-files and data when file-system metadata can't be trusted — using raw content
-analysis, file signatures, and carving instead.
+## Overview
+This lab is a practical digital forensics investigation conducted as part of the ICDFA Fellowship in Web Application Security and Digital Forensics. The objective was to examine raw file content, identify file signatures, recover embedded content, and carve deleted files from a USB forensic image.
 
-## What this covers
+## Investigator
+- **Name:** Adeleye Ademiluyi Timilehin
+- **Institution:** International Cybersecurity and Digital Forensics Academy (ICDFA)
+- **Batch:** B2025
+- **Registration:** 2025/FWSD/11459
 
-- Identifying JPEG headers/footers (SOI/EOI) with `xxd`
-- Rebuilding a JPEG from a hex dump and verifying it against the original with
-  MD5/SHA-256
-- Pulling metadata-style strings out of a JPEG with `strings`
-- Inode, block and sector-level analysis using The Sleuth Kit
-  (`img_stat`, `mmls`, `fsstat`, `fls`, `icat`, `blkcat`)
-- Finding embedded file structures with Binwalk
-- Extracting and examining a USB forensic image, confirming partition offset
-  with `mmls` rather than assuming it
-- Carving deleted JPEGs off the USB image with Scalpel, and validating what
-  came back
+## Evidence Files
+- **Ch01InChap01.dd** — 1.5MB — Forensic DD Image
+- **J_ub_law.jpg** — 1.7MB — JPEG Sample for Hex and Signature Analysis
+- **120M.7z** — 36MB — USB Image for Scalpel File Carving (usb_fat_carving.001 — 119MB)
 
-## Evidence used
+## Evidence Hashes
+| File | MD5 | SHA-256 |
+|---|---|---|
+| Ch01InChap01.dd | a117773bcf1fc88ec0ab8e0a349fbbcb | 3ce8053e4f3d9c8ab98b3aadb2480685efb8e4980d34297b83bd5a09b1a7b122 |
+| J_ub_law.jpg | 83a360ac7f7e0ca318e5bfe39f95f137 | 238ff34393c50e52c0e8b14fcff8ec7dc29e23914dbc435f8ef998d172a91468 |
+| 120M.7z | dfe7b5424e54cd1bf50d5df47aceeb3c | 2d2a3d93c9ec65bcad9f89c9894429ea72caa8add07726a3b96ec9a6ab6a58ce |
+| usb_fat_carving.001 | ba4a1d0ba49f4a6667b00a3b3e85e604 | Verified by FTK Imager |
 
-- `Ch01InChap01.dd` – forensic DD image
-- `J_ub_law.jpg` – JPEG for hex/signature analysis
-- `120M.7z` – USB image for Scalpel carving
+## Tools Used
+- **xxd** - Hex dump and file signature analysis
+- **strings** - Metadata extraction from binary files
+- **Binwalk** - Embedded file discovery
+- **Autopsy 2.24** - GUI forensic analysis
+- **Sleuth Kit** - img_stat, mmls, fsstat, fls, istat, icat, blkcat
+- **7zip** - Archive extraction
+- **Scalpel** - File carving (Part F)
+- **md5sum / sha256sum** - Evidence integrity verification
 
-All evidence is training material provided for the course. Original files were
-left untouched throughout — all work was done on copies in a separate working
-directory.
+## Lab Structure
+- evidence/ - Original evidence files
+- recovered_files/ - Files recovered from disk images
+- screenshots/ - Evidence screenshots for all parts
+- reports/ - Final forensic PDF report
+- sleuthkit_output/ - Command line tool outputs
+- carving_output/ - Scalpel carved files
 
-## Repo structure
+## Part A - File Signatures and Hex Analysis
+- JPEG header FF D8 confirmed at offset 0x00000000
+- JPEG footer FF D9 confirmed at offset 0x0019d1f6
+- Image reconstructed from hex dump — MD5 hash verified identical
 
-```
-/evidence          original downloaded evidence + hashes
-/working            copies used for analysis (nothing here touches originals)
-/output
-  /hex-analysis      xxd dumps, reconstructed JPEG, hash comparison
-  /tsk               Sleuth Kit output (mmls, fls, fsstat, etc.)
-  /binwalk           binwalk results
-  /scalpel           scalpel.conf, audit.txt, carved files
-/report.pdf          full write-up: commands, screenshots, findings, limitations
-```
+## Part B - Metadata Analysis
+- Camera: NIKON D4 (NIKON CORPORATION)
+- Software: Adobe Photoshop 21.1 (Macintosh)
+- Date: 2020-08-20 10:20:05
+- Photographer: HOWARD KORN
+- Lens: 17.0-35.0mm f/2.8
 
-## Notes
+## Part C - Sleuth Kit Analysis
+- File system: FAT12, offset 0
+- 6 files found, 4 deleted
+- INCOME.XLS recovered at inode 13, sectors 285-311
 
-- Where the lab guide gave a placeholder value (e.g. partition offset), I
-  confirmed it against my own `mmls` output rather than copying it.
-- Anything I couldn't find or verify is marked "not found" or documented as a
-  limitation in the report rather than guessed at.
-- No instructor-provided `File_carving.docx` was available for Part D, so
-  Binwalk practice was done against the other supplied evidence instead —
-  noted in the report.
+## Part D - Binwalk
+- J_ub_law.jpg: JPEG + embedded TIFF thumbnail + Adobe copyright string
+- Ch01InChap01.dd: No embedded files detected
 
-See `report.pdf` for the full walkthrough with commands and screenshots.
+## Part E - USB Image
+- Partition offset: 128 (confirmed via mmls)
+- File system: FAT16, volume label: USB
+- 35 files found, 32 deleted across multiple file types
+
+## Part F - Scalpel (Limitation)
+- Scalpel configuration initiated, JPEG entries identified
+- Full carving operation pending — to be submitted separately
+
+## Key Findings
+- INCOME.XLS successfully recovered from Ch01InChap01.dd
+- Photographer HOWARD KORN identified from J_ub_law.jpg metadata
+- 32 deleted files identified on USB image ready for carving
+- All evidence hashes verified before and after analysis
+
+## GitHub Repository
+https://github.com/Adeleye001/ICDFA-Ch02-Forensics-Lab
